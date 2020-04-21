@@ -13,4 +13,6 @@
 		<param name="name" value="obs"/>
 		<param name="frame_id" value="map"/>
 	</node>
+
+	<node pkg="distance_service" type="distance" name="distance_service"/>
 </launch>
