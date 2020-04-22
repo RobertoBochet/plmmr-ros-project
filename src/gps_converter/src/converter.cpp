@@ -130,13 +130,15 @@ class TfSubPub
 public:
 	TfSubPub()
 	{
-		ros::NodeHandle("~").getParam("topic", topic);
-		ros::NodeHandle("~").getParam("name", name);
-		ros::NodeHandle("~").getParam("frame_id", frame_id);
-		ros::NodeHandle().getParam("init_lat", init_lat);
-		ros::NodeHandle().getParam("init_lon", init_lon);
-		ros::NodeHandle().getParam("init_alt", init_alt);
-		ros::NodeHandle().getParam("debug", debug);
+		ros::NodeHandle nhl("~");
+
+		nhl.getParam("topic", topic);
+		nhl.getParam("name", name);
+		nhl.getParam("frame_id", frame_id);
+		nh.getParam("init_lat", init_lat);
+		nh.getParam("init_lon", init_lon);
+		nh.getParam("init_alt", init_alt);
+		nh.getParam("debug", debug);
 
 		ROS_INFO("\nTopic:\t\t%s\nName:\t\t%s\nFrame id:\t%s", topic.c_str(), name.c_str(), frame_id.c_str());
 		ROS_INFO("Init point:\t[%f, %f, %f]", init_lat, init_lon, init_alt);
@@ -148,7 +150,6 @@ public:
 		seq = std::make_shared<seq_t>(*sub, ros::Duration(0.1), ros::Duration(0.01), 10);
 		seq->registerCallback([this](auto &&PH1) { callback(PH1); });
 	}
-
 };
 
 
