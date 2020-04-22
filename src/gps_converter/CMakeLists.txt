@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(gps_converter)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf sensor_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf sensor_msgs message_filters)
 
 generate_messages(
         DEPENDENCIES

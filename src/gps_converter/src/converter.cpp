@@ -1,13 +1,22 @@
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/time_sequencer.h>
 #include <tf/transform_broadcaster.h>
 #include <tuple>
 
 
 class TfSubPub
 {
+	typedef message_filters::Subscriber<sensor_msgs::NavSatFix> sub_t;
+	typedef std::shared_ptr<sub_t> sub_ptr_t;
+	typedef message_filters::TimeSequencer<sensor_msgs::NavSatFix> seq_t;
+	typedef std::shared_ptr<seq_t> seq_ptr_t;
+
+	ros::NodeHandle nh;
 	tf::TransformBroadcaster br;
-	ros::Subscriber sub;
+	sub_ptr_t sub;
+	seq_ptr_t seq;
 	std::string topic, name, frame_id;
 	double init_lat, init_lon, init_alt;
 
@@ -24,7 +33,10 @@ public:
 		ROS_INFO("\nTopic:\t\t%s\nName:\t\t%s\nFrame id:\t%s", topic.c_str(), name.c_str(), frame_id.c_str());
 		ROS_INFO("Init point:\t[%f, %f, %f]", init_lat, init_lon, init_alt);
 
-		sub = ros::NodeHandle().subscribe(topic, 1000, &TfSubPub::callback, this);
+		sub = std::make_shared<sub_t>(nh, topic, 1);
+		seq = std::make_shared<seq_t>(*sub, ros::Duration(0.1), ros::Duration(0.01), 10);
+		//sub->registerCallback([this](auto &&PH1) { callback(PH1); });
+		seq->registerCallback([this](auto && PH1) { callback(PH1); });
 	}
 
 	void callback(const sensor_msgs::NavSatFixConstPtr &msg)
