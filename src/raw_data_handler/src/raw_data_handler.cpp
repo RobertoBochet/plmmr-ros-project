@@ -7,7 +7,7 @@
 #include <tuple>
 
 
-class TfSubPub
+class RawDataHandlerNode
 {
 	typedef message_filters::Subscriber<sensor_msgs::NavSatFix> sub_t;
 	typedef std::shared_ptr<sub_t> sub_ptr_t;
@@ -15,12 +15,17 @@ class TfSubPub
 	typedef std::shared_ptr<seq_t> seq_ptr_t;
 
 	bool debug = false;
+
 	ros::NodeHandle nh;
+
 	ros::Publisher odom_pub;
 	ros::Publisher odom_debug_pub;
+
 	tf::TransformBroadcaster br;
+
 	sub_ptr_t sub;
 	seq_ptr_t seq;
+
 	std::string topic, name, frame_id;
 	double init_lat, init_lon, init_alt;
 
@@ -128,7 +133,7 @@ class TfSubPub
 	}
 
 public:
-	TfSubPub()
+	RawDataHandlerNode()
 	{
 		ros::NodeHandle nhl("~");
 
@@ -149,15 +154,17 @@ public:
 		sub = std::make_shared<sub_t>(nh, topic, 1);
 		seq = std::make_shared<seq_t>(*sub, ros::Duration(0.1), ros::Duration(0.01), 10);
 		seq->registerCallback([this](auto &&PH1) { callback(PH1); });
+
+		ROS_INFO("Raw data handler node ready!");
 	}
 };
 
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "gps_converter");
+	ros::init(argc, argv, "raw_data_handler");
 
-	TfSubPub tf_sub_pub;
+	RawDataHandlerNode node;
 
 	ros::spin();
 	return 0;
