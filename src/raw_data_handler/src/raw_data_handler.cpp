@@ -26,13 +26,23 @@ class RawDataHandlerNode
 	sub_ptr_t sub;
 	seq_ptr_t seq;
 
-	std::string topic, name, frame_id;
+	std::string topic, name, name_lost, frame_id;
 	double init_lat, init_lon, init_alt;
 
 
 	void callback(const sensor_msgs::NavSatFixConstPtr &msg)
 	{
+
 		ROS_INFO("Input position: [%f, %f, %f]", msg->latitude, msg->longitude, msg->altitude);
+
+		// handles gps signal loss
+		if (msg->latitude == 0 && msg->longitude == 0 && msg->altitude == 0)
+		{
+			send_om(0, 0, 0, ros::Time::now(), true);
+
+			ROS_WARN("GPS signal of %s is lost", name.c_str());
+			return;
+		}
 
 		double x, y, z;
 		std::tie(x, y, z) = lla_to_enu(msg->latitude, msg->longitude, msg->altitude);
@@ -45,7 +55,7 @@ class RawDataHandlerNode
 		send_tf(x, y, z, t);
 	}
 
-	void send_om(double x, double y, double z, ros::Time t)
+	void send_om(double x, double y, double z, ros::Time t, bool lost = false)
 	{
 		nav_msgs::Odometry o;
 
@@ -53,7 +63,7 @@ class RawDataHandlerNode
 		o.pose.pose.position.y = y;
 		o.pose.pose.position.z = z;
 
-		o.header.frame_id = name;
+		o.header.frame_id = lost ? name_lost : name;
 		o.child_frame_id = frame_id;
 		o.header.stamp = t;
 
@@ -144,6 +154,8 @@ public:
 		nh.getParam("init_lon", init_lon);
 		nh.getParam("init_alt", init_alt);
 		nh.getParam("debug", debug);
+
+		name_lost = name + "_lost";
 
 		ROS_INFO("\nTopic:\t\t%s\nName:\t\t%s\nFrame id:\t%s", topic.c_str(), name.c_str(), frame_id.c_str());
 		ROS_INFO("Init point:\t[%f, %f, %f]", init_lat, init_lon, init_alt);
