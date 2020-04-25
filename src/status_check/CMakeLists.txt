@@ -2,14 +2,27 @@ cmake_minimum_required(VERSION 2.8.3)
 project(status_check)
 
 ## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs dynamic_reconfigure)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs dynamic_reconfigure nav_msgs message_generation distance_service message_filters)
 
 generate_dynamic_reconfigure_options(
 		cfg/parameters.cfg
 )
 
-## Declare a catkin package
-catkin_package()
+add_message_files(
+		FILES
+		Status.msg
+)
+
+generate_messages(
+		DEPENDENCIES
+		std_msgs
+		nav_msgs
+)
+
+catkin_package(
+		CATKIN_DEPENDS
+		message_runtime
+)
 
 ## Build talker and listener
 include_directories(include ${catkin_INCLUDE_DIRS})
