@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp std_msgs geometry_msgs message_ge
 
 add_service_files(
 		FILES
-		DistanceService.srv
+		DistanceCalculator.srv
 )
 
 generate_messages(
