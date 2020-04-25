@@ -5,12 +5,12 @@
 	<param name="init_lon" value="9.28155230131"/>
 	<param name="init_alt" value="224.616616895"/>
 
-	<node pkg="raw_data_handler" type="raw_data_handler" name="raw_data_handler_front_node" output="screen">
+	<node pkg="raw_data_handler" type="raw_data_handler" name="raw_data_handler_front_node" output="log">
 		<param name="topic" value="/swiftnav/front/gps_pose"/>
 		<param name="name" value="front"/>
 		<param name="frame_id" value="map"/>
 	</node>
-	<node pkg="raw_data_handler" type="raw_data_handler" name="raw_data_handler_obs_node" output="screen">
+	<node pkg="raw_data_handler" type="raw_data_handler" name="raw_data_handler_obs_node" output="log">
 		<param name="topic" value="/swiftnav/obs/gps_pose"/>
 		<param name="name" value="obs"/>
 		<param name="frame_id" value="map"/>
