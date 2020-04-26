@@ -1,19 +1,19 @@
 <launch>
 	<param name="debug" value="true"/>
 
-	<param name="init_lat" value="45.6216561271"/>
-	<param name="init_lon" value="9.28155230131"/>
-	<param name="init_alt" value="224.616616895"/>
+	<param name="initial/latitude" value="45.6216561271"/>
+	<param name="initial/longitude" value="9.28155230131"/>
+	<param name="initial/altitude" value="224.616616895"/>
 
 	<node pkg="raw_data_handler" type="raw_data_handler" name="raw_data_handler_front_node" output="log">
 		<param name="topic" value="/swiftnav/front/gps_pose"/>
 		<param name="name" value="front"/>
-		<param name="frame_id" value="map"/>
+		<param name="reference" value="map"/>
 	</node>
 	<node pkg="raw_data_handler" type="raw_data_handler" name="raw_data_handler_obs_node" output="log">
 		<param name="topic" value="/swiftnav/obs/gps_pose"/>
 		<param name="name" value="obs"/>
-		<param name="frame_id" value="map"/>
+		<param name="reference" value="map"/>
 	</node>
 
 	<node pkg="distance_service" type="distance" name="distance_service"/>
