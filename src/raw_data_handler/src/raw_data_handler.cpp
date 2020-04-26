@@ -26,7 +26,7 @@ class RawDataHandlerNode
 	sub_ptr_t sub;
 	seq_ptr_t seq;
 
-	std::string topic, name, name_lost, frame_id;
+	std::string topic, name, name_lost, reference;
 	double init_lat, init_lon, init_alt;
 
 
@@ -63,8 +63,8 @@ class RawDataHandlerNode
 		o.pose.pose.position.y = y;
 		o.pose.pose.position.z = z;
 
-		o.header.frame_id = lost ? name_lost : name;
-		o.child_frame_id = frame_id;
+		o.header.frame_id = reference;
+		o.child_frame_id = lost ? name_lost : name;
 		o.header.stamp = t;
 
 		odom_pub.publish(o);
@@ -86,7 +86,7 @@ class RawDataHandlerNode
 		tf::Quaternion q;
 		q.setRPY(0, 0, 0);
 		transform.setRotation(q);
-		br.sendTransform(tf::StampedTransform(transform, t, frame_id, name));
+		br.sendTransform(tf::StampedTransform(transform, t, reference, name));
 	}
 
 	std::tuple<double, double, double> lla_to_enu(double lat, double lon, double alt)
@@ -149,15 +149,15 @@ public:
 
 		nhl.getParam("topic", topic);
 		nhl.getParam("name", name);
-		nhl.getParam("frame_id", frame_id);
-		nh.getParam("init_lat", init_lat);
-		nh.getParam("init_lon", init_lon);
-		nh.getParam("init_alt", init_alt);
+		nhl.getParam("reference", reference);
+		nh.getParam("initial/latitude", init_lat);
+		nh.getParam("initial/longitude", init_lon);
+		nh.getParam("initial/altitude", init_alt);
 		nh.getParam("debug", debug);
 
 		name_lost = name + "_lost";
 
-		ROS_INFO("\nTopic:\t\t%s\nName:\t\t%s\nFrame id:\t%s", topic.c_str(), name.c_str(), frame_id.c_str());
+		ROS_INFO("\nTopic:\t\t%s\nName:\t\t%s\nReference frame id:\t%s", topic.c_str(), name.c_str(), reference.c_str());
 		ROS_INFO("Init point:\t[%f, %f, %f]", init_lat, init_lon, init_alt);
 
 		odom_pub = nh.advertise<nav_msgs::Odometry>("odom/" + name, 10);

@@ -66,7 +66,7 @@ public:
 		status_check::Status s;
 
 		// handles the GPS signal loss
-		if (front->header.frame_id == "front_lost" || obs->header.frame_id == "obs_lost")
+		if (front->child_frame_id == "front_lost" || obs->child_frame_id == "obs_lost")
 		{
 			s.distance = NAN;
 			s.status = "unavailable";
