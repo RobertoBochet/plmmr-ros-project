@@ -13,22 +13,22 @@ Since the gps messages can arrive out of sequence a `TimeSequencer` filter is us
 
 #### gps signal loss
 
-If gps signal is lost the odometry package is flagged by the `frame_id` set as `{name}_lost` (instead of `{name}), and tf is not published.
+If gps signal is lost the odometry package is flagged by the `child_frame_id` set as `{name}_lost` (instead of `{name}), and tf is not published.
 
 #### Parameters
 
 ##### globally
 
-- `init_lat` initial latitude
-- `init_lon` initial longitude
-- `init_alt` initial altitude
+- `initial/latitude` initial latitude
+- `initial/longitude` initial longitude
+- `initial/altitude` initial altitude
 - `debug` [optional] if true odometry x/100 is published on `/odom/debug/{name}`
 
 ##### private
 
 - `topic` topic of gps data raw
-- `name` name of the node, it is used for publishing topic and `frame_id`
-- `frame_id` reference frame id for tf
+- `name` name of the node, it is used for publishing topic and `child_frame_id`
+- `reference` reference frame id for tf and odometry
 
 
 ### `status_check`
@@ -69,4 +69,4 @@ The messsage is used in topic `/status` and provides `distance` (`float64`) and 
 
 ## How to start
 
-It is sufficient to use the launch file in the package `orchestrator` called `orchestator.launch`.
+It is sufficient to use the launch file in the package `orchestrator` called `orchestrator.launch`.
