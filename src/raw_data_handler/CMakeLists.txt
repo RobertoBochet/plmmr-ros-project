@@ -4,11 +4,6 @@ project(raw_data_handler)
 ## Find catkin and any catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp std_msgs tf sensor_msgs message_filters)
 
-generate_messages(
-        DEPENDENCIES
-        sensor_msgs
-)
-
 ## Declare a catkin package
 catkin_package()
 
