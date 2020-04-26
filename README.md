@@ -26,14 +26,15 @@ If gps signal is lost the odometry package is flagged by the `child_frame_id` se
 
 ##### private
 
-- `topic` topic of gps data raw
+- `topic` gps data raw topic
 - `name` name of the node, it is used for publishing topic and `child_frame_id`
 - `reference` reference frame id for tf and odometry
 
 
 ### `status_check`
 
-
+This package provides a node subscribes to two odometric topics with `ApproximateTime` sync policy. When two messages arrive it checks if both are valid, it calculates the distance exploiting the `distance_calculator` service. In addition, the node determines collision status, then it publishes the values on the topic `/status`.  
+The two threshold can be dynamically changed.
 
 
 #### Parameters
@@ -49,7 +50,7 @@ If gps signal is lost the odometry package is flagged by the `child_frame_id` se
 This package provides a service takes two 3d point (`Point`) and return the distance (`float64`) between them.
 
 
-### `orchestator`
+### `orchestrator`
 
 The package provides only the launch file. 
 
@@ -63,7 +64,7 @@ The tf root is `map` and `front` and `obs` are its children.
 
 ### Status
 
-The messsage is used in topic `/status` and provides `distance` (`float64`) and `status` (`string`).
+The message is used in topic `/status` and provides `distance` (`float64`) and `status` (`string`).
 `status` can take the following values `safe`, `unsafe`, `crash` and `unavailable`.
 
 
