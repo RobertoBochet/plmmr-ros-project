@@ -1,0 +1,58 @@
+<launch>
+	<param name="/use_sim_time" value="true"/>
+
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_camera"
+		  args="0 0 0  0 0 0 1  odom camera_odom_frame"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_sensor"
+		  args="-0.675 -0.008 0.96  0 0 0  base_link os1_sensor"/>
+
+	<!--fixes the incomplete TF in the second bag file-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_imu"
+		  args="0.006 -0.012 0.008  0 0 0 1  os1_sensor os1_imu"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_lidar"
+		  args="0.000 0.000 0.036  0.000 0.000 1.000 0.000  os1_sensor os1_lidar"/>
+
+	<!--provides the map-->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find robot_mapping)/maps/odometric_map.yaml">
+		<param name="frame_id" value="map"/>
+	</node>
+
+	<!--converts the cloudpoints to laserscan-->
+	<include file="$(find robot_mapping)/node/laserscan.xml"/>
+	
+	<include file="$(find robot_mapping)/node/sensors_fusion.xml"/>
+
+	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+		<rosparam file="$(find robot_mapping)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find robot_mapping)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find robot_mapping)/cfg/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find robot_mapping)/cfg/global_costmap_params.yaml" command="load" />
+		<rosparam file="$(find robot_mapping)/cfg/dwa_local_planner_params.yaml" command="load" />
+		<rosparam file="$(find robot_mapping)/cfg/move_base_params.yaml" command="load" />
+
+		<param name="base_global_planner" value="navfn/NavfnROS" />  <!--   planner  navfn/NavfnROS alternative  carrot_planner/CarrotPlanner -->
+		<param name="planner_frequency" value="1.0" />
+		<param name="planner_patience" value="5.0" /> <!-- How long the planner will wait in seconds in an attempt to find a valid plan before space-clearing operations are performed.  -->
+
+		<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+		<param name="controller_frequency" value="5.0" />
+		<param name="controller_patience" value="5.0" /> <!-- How long the controller will wait in seconds without receiving a valid control before space-clearing operations are performed.  -->
+
+		<param name="clearing_rotation_allowed" value="false"/>
+	</node>
+
+	<include file="$(find robot_mapping)/node/amcl.xml">
+		<arg name="initial_pose_x" value="0"/>
+		<arg name="initial_pose_y" value="0"/>
+		<arg name="initial_pose_a" value="0"/>
+	</include>
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/navigation.rviz"/>
+
+	<!--<node pkg="rqt_tf_tree" type="rqt_tf_tree" name="rqt_tf_tree"/>-->
+
+	<!--2020-05-14-16-09-36-traj1-os1-t265-pix.bag-->
+	<!--2020-05-14-16-14-37-traj2-os1-t265-pix.bag-->
+	<node pkg="rosbag" type="play" name="player"
+		  args="--clock -u 240 $(find robot_mapping)/bag/2020-05-14-16-14-37-traj2-os1-t265-pix.bag"/>
+</launch>

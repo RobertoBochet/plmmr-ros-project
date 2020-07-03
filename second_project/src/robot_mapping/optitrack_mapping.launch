@@ -1,0 +1,20 @@
+<launch>
+	<param name="/use_sim_time" value="true"/>
+
+	<!--yaw offset from optitrack to lidar (os1_sensor): 3.14 rad-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_sensor"
+		  args="0 0 0  3.14 0 0  Robot_1/base_link os1_sensor"/>
+
+	<!--converts the cloudpoints to laserscan-->
+	<include file="$(find robot_mapping)/node/laserscan.xml"/>
+
+	<include file="$(find robot_mapping)/node/gmapping.xml">
+		<arg name="base_frame" value="Robot_1/base_link"/>
+		<arg name="odom_frame" value="world"/>
+	</include>
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/optitrack.rviz"/>
+
+	<node pkg="rosbag" type="play" name="player"
+		  args="-u 70 --clock $(find robot_mapping)/bag/2020-05-14-16-09-36-traj1-os1-t265-pix.bag"/>
+</launch>

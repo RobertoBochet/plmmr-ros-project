@@ -1,0 +1,8 @@
+<launch>
+	<node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan_node">
+		<remap from="cloud_in" to="/os1_cloud_node/points"/>
+
+		<param name="min_height" value="-1.5"/><!--1.5-->
+		<param name="max_height" value="-0.5"/><!--0.5-->
+	</node>
+</launch>
