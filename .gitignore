@@ -1,5 +1,9 @@
-.catkin_workspace
-/src/CMakeLists.txt
-/src/cmake-build-debug
-/build
-/devel
+/*/.catkin_workspace
+/*/src/CMakeLists.txt
+/*/src/cmake-build-debug
+/*/build/
+/*/devel/
+
+/*/doc/
+
+*.bag
