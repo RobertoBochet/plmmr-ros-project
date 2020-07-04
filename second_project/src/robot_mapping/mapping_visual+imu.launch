@@ -1,0 +1,31 @@
+<launch>
+	<param name="/use_sim_time" value="true"/>
+
+	<!--offset from camera to lidar (os1_sensor)-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_sensor"
+		  args="-0.675 -0.008 0.96  0 0 0  base_link os1_sensor"/>
+
+	<!--converts the cloudpoints to laserscan-->
+	<include file="$(find robot_mapping)/node/laserscan.xml"/>
+
+	<!--merges the data from odometry and imu to improve the accuracy-->
+	<include file="$(find robot_mapping)/node/sensors_fusion.xml">
+		<arg name="base_frame" default="base_link"/>
+		<arg name="odom_frame" default="camera_odom_frame"/>
+		<arg name="map_frame" default="map"/>
+		<arg name="world_frame" default="camera_odom_frame"/>
+	</include>
+
+	<!--creates the map exploiting laserscan-->
+	<include file="$(find robot_mapping)/node/gmapping.xml">
+		<arg name="map_frame" default="map"/>
+		<arg name="odom_frame" value="camera_odom_frame"/>
+		<arg name="base_frame" value="base_link"/>
+	</include>
+
+	<!--visualizes the system-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/mapping_visual+imu.rviz"/>
+
+	<node pkg="rosbag" type="play" name="player"
+		  args="--clock -u 240 $(find robot_mapping)/bag/2020-05-14-16-09-36-traj1-os1-t265-pix.bag"/>
+</launch>
