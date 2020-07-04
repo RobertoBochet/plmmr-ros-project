@@ -1,9 +1,12 @@
 <launch>
 	<param name="/use_sim_time" value="true"/>
 
-	<!--links robot pose to the sensors-->
+	<!--offset from camera to lidar (os1_sensor)-->
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pose_sensor"
 		  args="-0.675 -0.008 0.96  0 0 0 1 camera_pose_frame os1_sensor"/>
+
+	<!--fixes the incomplete TF in the second bag file-->
+	<include file="$(find robot_mapping)/node/sensor_tf.xml"/>
 
 	<!--converts the cloudpoints to laserscan-->
 	<include file="$(find robot_mapping)/node/laserscan.xml"/>
