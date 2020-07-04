@@ -1,27 +1,30 @@
 <launch>
 	<param name="/use_sim_time" value="true"/>
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_camera"
-		  args="0 0 0  0 0 0 1  odom camera_odom_frame"/>
+	<!--offset from camera to lidar (os1_sensor)-->
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_sensor"
-		  args="-0.675 -0.008 0.96  0 0 0  base_link os1_sensor"/>
+		  args="-0.675 -0.008 0.96  0 0 0 1  base_link os1_sensor"/>
 
 	<!--fixes the incomplete TF in the second bag file-->
-	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_imu"
-		  args="0.006 -0.012 0.008  0 0 0 1  os1_sensor os1_imu"/>
-	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_lidar"
-		  args="0.000 0.000 0.036  0.000 0.000 1.000 0.000  os1_sensor os1_lidar"/>
-
-	<!--provides the map-->
-	<node name="map_server" pkg="map_server" type="map_server" args="$(find robot_mapping)/maps/odometric_map.yaml">
-		<param name="frame_id" value="map"/>
-	</node>
+	<include file="$(find robot_mapping)/node/sensor_tf.xml"/>
 
 	<!--converts the cloudpoints to laserscan-->
 	<include file="$(find robot_mapping)/node/laserscan.xml"/>
-	
-	<include file="$(find robot_mapping)/node/sensors_fusion.xml"/>
 
+	<!--provides the map-->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find robot_mapping)/maps/map_visual+imu.yaml">
+		<param name="frame_id" value="map"/>
+	</node>
+
+	<!--merges the data from odometry and imu to improve the accuracy-->
+	<include file="$(find robot_mapping)/node/sensors_fusion.xml">
+		<arg name="base_frame" default="base_link"/>
+		<arg name="odom_frame" default="camera_odom_frame"/>
+		<arg name="map_frame" default="map"/>
+		<arg name="world_frame" default="camera_odom_frame"/>
+	</include>
+
+	<!--moving base of the robot-->
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 		<rosparam file="$(find robot_mapping)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find robot_mapping)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
@@ -41,15 +44,19 @@
 		<param name="clearing_rotation_allowed" value="false"/>
 	</node>
 
+	<!--localization system-->
 	<include file="$(find robot_mapping)/node/amcl.xml">
+		<arg name="odom_frame_id"   value="camera_odom_frame"/>
+		<arg name="base_frame_id"   value="base_link"/>
+		<arg name="global_frame_id" value="map"/>
+
 		<arg name="initial_pose_x" value="0"/>
 		<arg name="initial_pose_y" value="0"/>
 		<arg name="initial_pose_a" value="0"/>
 	</include>
 
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/navigation.rviz"/>
-
-	<!--<node pkg="rqt_tf_tree" type="rqt_tf_tree" name="rqt_tf_tree"/>-->
+	<!--visualizes the system-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/navigation_visual+imu.rviz"/>
 
 	<!--2020-05-14-16-09-36-traj1-os1-t265-pix.bag-->
 	<!--2020-05-14-16-14-37-traj2-os1-t265-pix.bag-->
