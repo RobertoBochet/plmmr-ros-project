@@ -5,15 +5,21 @@
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_sensor"
 		  args="0 0 0  3.14 0 0  Robot_1/base_link os1_sensor"/>
 
+	<!--fixes the incomplete TF in the second bag file-->
+	<include file="$(find robot_mapping)/node/sensor_tf.xml"/>
+
 	<!--converts the cloudpoints to laserscan-->
 	<include file="$(find robot_mapping)/node/laserscan.xml"/>
 
+	<!--creates the map exploiting laserscan-->
 	<include file="$(find robot_mapping)/node/gmapping.xml">
-		<arg name="base_frame" value="Robot_1/base_link"/>
+		<arg name="map_frame" value="map"/>
 		<arg name="odom_frame" value="world"/>
+		<arg name="base_frame" value="Robot_1/base_link"/>
 	</include>
 
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/optitrack.rviz"/>
+	<!--visualizes the system-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/mapping_optitrack.rviz"/>
 
 	<node pkg="rosbag" type="play" name="player"
 		  args="-u 70 --clock $(find robot_mapping)/bag/2020-05-14-16-09-36-traj1-os1-t265-pix.bag"/>
