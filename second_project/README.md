@@ -60,4 +60,6 @@ To compute the map was used the `2020-05-14-16-09-36-traj1-os1-t265-pix.bag` fil
 
 The maps were created by both optitrack data, odometric and imu data, so it was generated 3 maps exploiting the 3 methods. The differences between maps generate with and without imu seem very small.
 
+The laser scan was set between the heights of `-0.5m` and `-1.5m` (from the lidar) with the idea to detect also the low obstacles with the purpose of improving the behaviour of the global planner. 
+
 For the navigation was been used the map generated with the sensor fusion.
