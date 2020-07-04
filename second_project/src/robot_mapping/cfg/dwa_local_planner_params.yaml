@@ -51,6 +51,6 @@ DWAPlannerROS:
   publish_traj_pc : true
   publish_cost_grid_pc: true
   publish_cost_grid: true
-  global_frame_id: camera_odom_frame
+#  global_frame_id: camera_odom_frame
 
 
