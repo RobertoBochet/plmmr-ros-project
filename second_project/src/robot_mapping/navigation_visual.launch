@@ -1,0 +1,45 @@
+<launch>
+	<param name="/use_sim_time" value="true"/>
+
+	<!--offset from camera to lidar (os1_sensor)-->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_link_sensor"
+		  args="-0.675 -0.008 0.96  0 0 0 1  camera_pose_frame os1_sensor"/>
+
+	<!--fixes the incomplete TF in the second bag file-->
+	<include file="$(find robot_mapping)/node/sensor_tf.xml"/>
+
+	<!--converts the cloudpoints to laserscan-->
+	<include file="$(find robot_mapping)/node/laserscan.xml"/>
+
+	<!--provides the map-->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find robot_mapping)/maps/map_visual+imu.yaml">
+		<param name="frame_id" value="map"/>
+	</node>
+
+	<!--moving base of the robot-->
+	<include file="$(find robot_mapping)/node/move_base.xml">
+		<arg name="global_costmap/global_frame" value="map"/>
+		<arg name="global_costmap/robot_base_frame" value="camera_pose_frame"/>
+		<arg name="local_costmap/global_frame" value="camera_odom_frame"/>
+		<arg name="local_costmap/robot_base_frame" value="camera_pose_frame"/>
+	</include>
+
+	<!--localization system-->
+	<include file="$(find robot_mapping)/node/amcl.xml">
+		<arg name="odom_frame_id"   value="camera_odom_frame"/>
+		<arg name="base_frame_id"   value="camera_pose_frame"/>
+		<arg name="global_frame_id" value="map"/>
+
+		<arg name="initial_pose_x" value="0"/>
+		<arg name="initial_pose_y" value="0"/>
+		<arg name="initial_pose_a" value="0"/>
+	</include>
+
+	<!--visualizes the system-->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_mapping)/rviz/navigation_visual.rviz"/>
+
+	<!--2020-05-14-16-09-36-traj1-os1-t265-pix.bag-->
+	<!--2020-05-14-16-14-37-traj2-os1-t265-pix.bag-->
+	<node pkg="rosbag" type="play" name="player"
+		  args="--clock -u 240 $(find robot_mapping)/bag/2020-05-14-16-14-37-traj2-os1-t265-pix.bag"/>
+</launch>
